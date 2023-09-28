@@ -20,7 +20,7 @@
         <thead>
             <tr>
                 <th rowspan="3">No</th>
-                <th rowspan="3">Kasus</th>
+                <th rowspan="3">Modus Operan</th>
                 <th colspan="14"><center>Berdasarkan Hari</center></th>
                 <th rowspan="3">Jml</th>
             </tr>
@@ -58,26 +58,15 @@
         </thead>
         <tbody>
             <?php
-             $getID = $_GET['id'];
-             if ($getID == "all") {
-                $query = "SELECT tindak_pidana.nama AS nama_tindak_pidana, 
+            // Query SQL to retrieve data
+            $query = "SELECT modus.nama AS nama_modus, 
                 DAYNAME(lp.tanggal) AS nama_hari, 
                 COUNT(*) AS total_count 
                 FROM `tb_lp` lp 
                 JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-                GROUP BY DAYNAME(lp.tanggal), lp.id_tindak_pidana;";
-             }  else if ($getID == "") {
-                echo "Masukkan ID Wilayah terlebih dahulu";
-            } else {
-            $query = "SELECT tindak_pidana.nama AS nama_tindak_pidana, 
-                DAYNAME(lp.tanggal) AS nama_hari, 
-                COUNT(*) AS total_count 
-                FROM `tb_lp` lp 
-                JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-                JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id 
-                WHERE wilayah.id = $getID
-                GROUP BY DAYNAME(lp.tanggal), lp.id_tindak_pidana;";
-            }
+                JOIN tb_modus modus on lp.id_modus = modus.id
+                GROUP BY DAYNAME(lp.tanggal), modus.nama;";
+
             $result = $conn->query($query);
 
             $no = 1; // Untuk nomor urut
@@ -91,7 +80,7 @@
 
             // Loop to fetch and organize data
             while ($row = $result->fetch_assoc()) {
-                $tindakPidana = $row['nama_tindak_pidana'];
+                $tindakPidana = $row['nama_modus'];
                 $hari = $row['nama_hari'];
                 $total = $row['total_count'];
 

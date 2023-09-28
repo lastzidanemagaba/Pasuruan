@@ -63,10 +63,25 @@
             <!-- Kolom "No" dan "Kasus" -->
             <?php
             // Query SQL untuk mengambil data dari hasil query yang telah Anda berikan
+            $getID = $_GET['id'];
+            if ($getID == "all") {
+                $query = "SELECT DISTINCT tindak_pidana.nama AS nama_tindak_pidana 
+                          FROM tb_lp lp 
+					      JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
+                          JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id
+                          JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id;";
+            }
+            else if ($getID == "") {
+                echo "Masukkan ID Wilayah terlebih dahulu";
+            }
+            else {
             $query = "SELECT DISTINCT tindak_pidana.nama AS nama_tindak_pidana 
                       FROM tb_lp lp 
 					  JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
-                      JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id";
+                      JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id
+                      JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id 
+					  WHERE wilayah.id = $getID";
+            }
 
             $result = $conn->query($query);
 
@@ -80,22 +95,48 @@
                 echo "<td>" . $row['nama_tindak_pidana'] . "</td>";
                 // Tambahkan loop untuk mengisi data waktu dan jumlah
                 for ($i = 0; $i < count($tempat); $i++) {
-                    // Query SQL untuk mengambil data dari hasil query yang telah Anda berikan
+                    if ($getID == "all") {
+                        // Query SQL untuk mengambil data dari hasil query yang telah Anda berikan
+                        $query = "SELECT COUNT(*) AS total_count 
+                                  FROM tb_lp lp 
+                                  JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
+                                  JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
+                                  WHERE tindak_pidana.nama = '" . $row['nama_tindak_pidana'] . "' AND tempat.nama LIKE '%" . $tempat[$i] . "%';";
+                    }
+                    else if ($getID == "") {
+                        echo "Masukkan ID Wilayah terlebih dahulu";
+                    }
+                    else {
                     $query = "SELECT COUNT(*) AS total_count 
                               FROM tb_lp lp 
                               JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
                               JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-                              WHERE tindak_pidana.nama = '" . $row['nama_tindak_pidana'] . "' AND tempat.nama LIKE '%" . $tempat[$i] . "%';";
+                              JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id 
+                              WHERE tindak_pidana.nama = '" . $row['nama_tindak_pidana'] . "' AND tempat.nama LIKE '%" . $tempat[$i] . "%' AND wilayah.id = $getID;";
+                    }
                     $result2 = $conn->query($query);
                     $row2 = $result2->fetch_assoc();
                     echo "<td colspan=2>" . $row2['total_count'] . "</td>";
                 }
                 // sum total
+                if ($getID == "all") {
+                    $query2 = "SELECT COUNT(*) AS total_count 
+                              FROM tb_lp lp 
+                              JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
+                              JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
+                              WHERE tindak_pidana.nama = '" . $row['nama_tindak_pidana'] . "'";
+                }
+                else if ($getID == "") {
+                    echo "Masukkan ID Wilayah terlebih dahulu";
+                }
+                else {
 				$query2 = "SELECT COUNT(*) AS total_count 
 						  FROM tb_lp lp 
 						  JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
 						  JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-						  WHERE tindak_pidana.nama = '" . $row['nama_tindak_pidana'] . "'";
+                          JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id 
+						  WHERE tindak_pidana.nama = '" . $row['nama_tindak_pidana'] . "' AND wilayah.id = $getID";
+                }
 				$result3 = $conn->query($query2);
 				$row3 = $result3->fetch_assoc();
 				echo "<td>" . $row3['total_count'] . "</td>";
@@ -108,12 +149,25 @@
             echo "<tr>";
             echo "<td colspan=2><center>Jumlah</center></td>";
             for ($i = 0; $i < count($tempat); $i++) {
-                // Query SQL untuk mengambil data dari hasil query yang telah Anda berikan
+                if ($getID == "all") {
+                    // Query SQL untuk mengambil data dari hasil query yang telah Anda berikan
+                    $query = "SELECT COUNT(*) AS total_count 
+                              FROM tb_lp lp 
+                              JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
+                              JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
+                              WHERE tempat.nama LIKE '%" . $tempat[$i] . "%';";
+                }
+                else if ($getID == "") {
+                    echo "Masukkan ID Wilayah terlebih dahulu";
+                }
+                else {
                 $query = "SELECT COUNT(*) AS total_count 
                           FROM tb_lp lp 
                           JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
                           JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-                          WHERE tempat.nama LIKE '%" . $tempat[$i] . "%';";
+                          JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id 
+                        WHERE tempat.nama LIKE '%" . $tempat[$i] . "%' AND wilayah.id = $getID;";
+                }
 
                 $result2 = $conn->query($query);
                 $row2 = $result2->fetch_assoc();

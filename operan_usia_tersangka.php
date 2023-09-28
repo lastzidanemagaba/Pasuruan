@@ -20,7 +20,7 @@
         <thead>
             <tr>
                 <th rowspan="3">No</th>
-                <th rowspan="3">Kasus</th>
+                <th rowspan="3">Modus Operan</th>
                 <th colspan="10"><center>Berdasarkan Usia Tersangka</center></th>
                 <th rowspan="3">Jml</th>
             </tr>
@@ -59,22 +59,13 @@
         <tbody>
         <!-- Kolom "No" dan "Kasus" -->
         <?php
-        $getID = $_GET['id'];
-        if ($getID == "all") {
-            $queryTindakPidana = "SELECT DISTINCT tindak_pidana.nama AS nama_tindak_pidana 
-                            FROM tb_tersangka korban
-                            JOIN tb_lp lp ON korban.id = lp.id
-                            JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id;";
-        } else if ($getID == "") {
-            echo "Masukkan ID Wilayah terlebih dahulu";
-        } else {
-        $queryTindakPidana = "SELECT DISTINCT tindak_pidana.nama AS nama_tindak_pidana 
+        // Query SQL to get distinct tindak_pidana values
+        $queryTindakPidana = "SELECT DISTINCT modus.nama AS nama_modus
                             FROM tb_tersangka korban
                             JOIN tb_lp lp ON korban.id = lp.id
                             JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id
-                            JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id 
-                            WHERE wilayah.id = $getID;";
-        }
+                            JOIN tb_modus modus on lp.id_modus = modus.id;";
+
         $resultTindakPidana = $conn->query($queryTindakPidana);
 
         $no = 1; // Untuk nomor urut
@@ -84,30 +75,20 @@
             echo "<tr>";
             echo "<td>" . $no . "</td>";
             // Isi nama kasus dengan nama_tindak_pidana
-            echo "<td>" . $rowTindakPidana['nama_tindak_pidana'] . "</td>";
+            echo "<td>" . $rowTindakPidana['nama_modus'] . "</td>";
             // Initialize an array to store counts for each usia_pelaku
             $usia_pelakuCounts = array();
 
             // Query SQL to get counts for each usia_pelaku
             foreach ($usia_pelaku as $usia) {
-                if ($getID == "all") {
-                    $query = "SELECT COUNT(*) AS total_count 
-                    FROM tb_tersangka korban 
-                    JOIN tb_lp lp ON korban.id = lp.id 
-                    JOIN tb_usia_pelaku usia_pelaku ON korban.id_usia_pelaku = usia_pelaku.id 
-                    JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-                    WHERE usia_pelaku.nama = '" . $usia . "' AND tindak_pidana.nama = '" . $rowTindakPidana['nama_tindak_pidana'] . "';";
-                } else if ($getID == "") {
-                    echo "Masukkan ID Wilayah terlebih dahulu";
-                } else {
                 $query = "SELECT COUNT(*) AS total_count 
                           FROM tb_tersangka korban 
                           JOIN tb_lp lp ON korban.id = lp.id 
                           JOIN tb_usia_pelaku usia_pelaku ON korban.id_usia_pelaku = usia_pelaku.id 
                           JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-                          JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id 
-                          WHERE usia_pelaku.nama = '" . $usia . "' AND tindak_pidana.nama = '" . $rowTindakPidana['nama_tindak_pidana'] . "' AND wilayah.id = $getID;";
-                }
+                          JOIN tb_modus modus on lp.id_modus = modus.id
+                          WHERE usia_pelaku.nama = '" . $usia . "' AND modus.nama = '" . $rowTindakPidana['nama_modus'] . "';";
+
                 $result2 = $conn->query($query);
                 $row2 = $result2->fetch_assoc();
 
@@ -136,23 +117,12 @@
             <?php
             // Loop to calculate and output the total for each usia_pelaku
             foreach ($usia_pelaku as $usia) {
-                if ($getID == "all") {
-                    $query = "SELECT COUNT(*) AS total_count 
-                    FROM tb_tersangka korban 
-                    JOIN tb_lp lp ON korban.id = lp.id 
-                    JOIN tb_usia_pelaku usia_pelaku ON korban.id_usia_pelaku = usia_pelaku.id 
-                    JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-                    WHERE usia_pelaku.nama = '" . $usia . "';";
-                } else if ($getID == "") {
-                    echo "Masukkan ID Wilayah terlebih dahulu";
-                } else {
                 $query = "SELECT COUNT(*) AS total_count 
                           FROM tb_tersangka korban 
                           JOIN tb_lp lp ON korban.id = lp.id 
                           JOIN tb_usia_pelaku usia_pelaku ON korban.id_usia_pelaku = usia_pelaku.id 
-                          JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id 
-                          WHERE usia_pelaku.nama = '" . $usia . "' AND wilayah.id = $getID;";
-                }
+                          JOIN tb_modus modus on lp.id_modus = modus.id
+                          WHERE usia_pelaku.nama = '" . $usia . "';";
 
                 $result2 = $conn->query($query);
                 $row2 = $result2->fetch_assoc();

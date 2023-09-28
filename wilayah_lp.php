@@ -2,6 +2,17 @@
 <html>
 <head>
     <title>Tabel HTML dengan Colspan</title>
+    <style>
+        table {
+            width: 80%; /* Adjust the table width as needed */
+            font-size: 14px; /* Adjust the font size as needed */
+            margin: 0 auto; /* Center the table horizontally */
+        }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
 </head>
 <body>
 	<button id="exportButton">Export to Excel</button>
@@ -46,13 +57,11 @@
         <tbody>
         <!-- Kolom "No" dan "Kasus" -->
 		<?php
-            // Query SQL untuk mengambil data dari hasil query yang telah Anda berikan
-            $query = "SELECT tindak_pidana.nama AS nama_tindak_pidana,tempat.nama as nama_tempat,COUNT(*) AS total_count 
-			from tb_lp lp 
-			JOIN tb_wilayah tempat ON lp.id_tempat = tempat.id 
-			JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-			group by lp.id_tempat, lp.id_tindak_pidana;";
-
+            $query = "SELECT DISTINCT tindak_pidana.nama AS nama_tindak_pidana 
+            from tb_lp lp 
+            JOIN tb_wilayah tempat ON lp.id_tempat = tempat.id 
+            JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
+            JOIN tb_wilayah wilayah ON lp.id_wilayah = wilayah.id;";
             $result = $conn->query($query);
 
 			$no = 1; // Untuk nomor urut
@@ -65,12 +74,11 @@
                 // Tambahkan loop untuk mengisi data waktu dan jumlah
                 for ($i = 0; $i < count($tempat); $i++) {
 					// Query SQL untuk mengambil data jumlah
-					$query = "SELECT COUNT(*) AS total_count 
-							  FROM tb_lp lp 
-							  JOIN tb_wilayah tempat ON lp.id_tempat = tempat.id 
-							  JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-							  WHERE tindak_pidana.nama = '" . $row['nama_tindak_pidana'] . "' AND tempat.nama = '" . $tempat[$i] . "';";
-
+                    $query = "SELECT COUNT(*) AS total_count 
+                    FROM tb_lp lp 
+                    JOIN tb_wilayah tempat ON lp.id_tempat = tempat.id 
+                    JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
+                    WHERE tindak_pidana.nama = '" . $row['nama_tindak_pidana'] . "' AND tempat.nama LIKE '%" . $tempat[$i] . "%';";
 					$result2 = $conn->query($query);
 					$row2 = $result2->fetch_assoc();
 					echo "<td colspan=2>" . $row2['total_count'] . "</td>";
@@ -84,13 +92,11 @@
 			echo "<tr>";
             echo "<td colspan=2><center>Jumlah</center></td>";
 			for ($i = 0; $i < count($tempat); $i++) {
-				// Query SQL untuk mengambil data dari hasil query yang telah Anda berikan
-				$query = "SELECT COUNT(*) AS total_count 
-						  FROM tb_lp lp 
-						  JOIN tb_wilayah tempat ON lp.id_tempat = tempat.id 
-						  JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-						  WHERE tempat.nama = '" . $tempat[$i] . "';";
-
+                $query = "SELECT COUNT(*) AS total_count 
+                FROM tb_lp lp 
+                JOIN tb_wilayah tempat ON lp.id_tempat = tempat.id 
+                JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
+                WHERE tempat.nama = '" . $tempat[$i] . "';";
 				$result2 = $conn->query($query);
 				$row2 = $result2->fetch_assoc();
 				echo "<td colspan=2>" . $row2['total_count'] . "</td>";
@@ -105,8 +111,6 @@
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script>
         function exportToExcel() {
             const table = document.querySelector('table');

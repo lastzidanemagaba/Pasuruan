@@ -19,10 +19,10 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th rowspan="3">No</th>
+				<th rowspan="3">No</th>
                 <th rowspan="3">Modus Operan</th>
-                <th colspan="16"><center>Berdasarkan Waktu</center></th>
-                <th rowspan="3"><center>Jml</center></th>
+                <th colspan="18"><center>Berdasarkan Tempat</center></th>
+				<th rowspan="3">Jml</th>
             </tr>
             <tr>
                 <?php
@@ -40,32 +40,17 @@
                 }
 
                 // Query SQL untuk mengambil semua data dari tabel tb_sasi
-                $sql = "SELECT
-                            SUBSTRING_INDEX(SUBSTRING_INDEX(nama, '(', -1), ' - ', 1) AS waktu_mulai,
-                            SUBSTRING_INDEX(SUBSTRING_INDEX(nama, ' - ', -1), ')', 1) AS waktu_selesai
-                        FROM
-                            tb_sasi;";
+                $sql = "SELECT *
+				FROM
+					tb_tempat;";
 
                 $result = $conn->query($sql);
 
                 for ($i = 0; $i < $result->num_rows; $i++) {
                     $row = $result->fetch_assoc();
-                    echo "<th colspan='2'>" . $row['waktu_mulai'] . "</th>";
+                    echo "<th colspan='2'>" . $row['nama'] . "</th>";
                     // SIMPAN DATA WAKTU MULAI DAN WAKTU SELESAI KE DALAM ARRAY
-                    $waktu_mulai[] = $row['waktu_mulai'];
-                }
-                ?>
-            </tr>
-            <tr>
-                <?php
-                // Kembali ke awal hasil
-                $result->data_seek(0);
-
-                for ($i = 0; $i < $result->num_rows; $i++) {
-                    $row = $result->fetch_assoc();
-                    echo "<th colspan='2'>" . $row['waktu_selesai'] . "</th>";
-                    // SIMPAN DATA WAKTU MULAI DAN WAKTU SELESAI KE DALAM ARRAY
-                    $waktu_selesai[] = $row['waktu_selesai'];
+                    $tempat[] = $row['nama'];
                 }
                 ?>
             </tr>
@@ -95,14 +80,14 @@
                 // Isi nama kasus dengan nama_modus
                 echo "<td>" . $row['nama_modus'] . "</td>";
                 // Tambahkan loop untuk mengisi data waktu dan jumlah
-                for ($i = 0; $i < count($waktu_mulai); $i++) {
+                for ($i = 0; $i < count($tempat); $i++) {
                     // Query SQL untuk mengambil data dari hasil query yang telah Anda berikan
                     $query = "SELECT COUNT(*) AS total_count 
                               FROM tb_lp lp 
-                              JOIN tb_sasi sasi ON lp.id_sasi = sasi.id 
+                              JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
                               JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
                               JOIN tb_modus modus on lp.id_modus = modus.id
-                              WHERE sasi.nama LIKE '%" . $waktu_mulai[$i] . "%' AND sasi.nama LIKE '%" . $waktu_selesai[$i] . "%' AND modus.nama = '" . $row['nama_modus'] . "'";
+                              WHERE tempat.nama LIKE '%" . $tempat[$i] . "%' AND modus.nama = '" . $row['nama_modus'] . "';";
                     $result2 = $conn->query($query);
                     $row2 = $result2->fetch_assoc();
                     echo "<td colspan=2>" . $row2['total_count'] . "</td>";
@@ -110,7 +95,7 @@
                 // sum total
 				$query2 = "SELECT COUNT(*) AS total_count 
                                 FROM tb_lp lp 
-                                JOIN tb_sasi sasi ON lp.id_sasi = sasi.id 
+                                JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
                                 JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
                                 JOIN tb_modus modus on lp.id_modus = modus.id
                                 WHERE modus.nama = '" . $row['nama_modus'] . "'";
@@ -125,14 +110,14 @@
             }
             echo "<tr>";
             echo "<td colspan=2><center>Jumlah</center></td>";
-            for ($i = 0; $i < count($waktu_mulai); $i++) {
+            for ($i = 0; $i < count($tempat); $i++) {
                 // Query SQL untuk mengambil data dari hasil query yang telah Anda berikan
                 $query = "SELECT COUNT(*) AS total_count 
-                          FROM tb_lp lp 
-                          JOIN tb_sasi sasi ON lp.id_sasi = sasi.id 
-                          JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
-                          JOIN tb_modus modus on lp.id_modus = modus.id
-                          WHERE sasi.nama LIKE '%" . $waktu_mulai[$i] . "%' AND sasi.nama LIKE '%" . $waktu_selesai[$i] . "%'";
+                              FROM tb_lp lp 
+                              JOIN tb_tempat tempat ON lp.id_tempat = tempat.id 
+                              JOIN tb_tindak_pidana tindak_pidana ON lp.id_tindak_pidana = tindak_pidana.id 
+                              JOIN tb_modus modus on lp.id_modus = modus.id
+                              WHERE tempat.nama LIKE '%" . $tempat[$i] . "%';";
 
                 $result2 = $conn->query($query);
                 $row2 = $result2->fetch_assoc();
